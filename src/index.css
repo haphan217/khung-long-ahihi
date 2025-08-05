@@ -1,7 +1,5 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: Minecraft, system-ui, Avenir, Helvetica, Arial, sans-serif;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -26,21 +24,142 @@ body {
   height: 100vh;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+@font-face {
+  font-family: Minecraft;
+  src: url('./assets/Minecraft.ttf');
+}
+
+@keyframes bg-move {
+  0% {
+    background-position: 100%;
+  }
+  100% {
+    background-position: -50%;
+  }
+}
+
+.game-container {
+  width: 960px;
+  height: 422px;
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
+  background-image: url('./assets/background.jpg');
+  background-size: contain;
+  animation: bg-move 30s linear infinite;
+}
+
+.player {
+  width: 170px;
+  height: 78px;
+  position: absolute;
+  bottom: 40px;
+  left: 20%;
+  background-image: url('./assets/run-dino.webp');
+  background-size: cover;
+  background-position: bottom;
+}
+
+.player.jump {
+  animation: jump infinite;
+  background-image: url('./assets/dino.png');
+}
+
+@keyframes jump {
+  0% {
+    bottom: 40px;
+  }
+
+  25% {
+    bottom: 200px;
+  }
+  40% {
+    bottom: 200px;
+  }
+
+  100% {
+    bottom: 40px;
+  }
+}
+
+.obstacle {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  bottom: 40px;
+  left: 80%;
+  animation: move 3s linear infinite;
+  background-image: url('./assets/rock.webp');
+  background-size: contain;
+}
+
+@keyframes move {
+  0% {
+    left: 100%;
+  }
+  100% {
+    left: -100px;
+  }
+}
+
+.score-card {
+  color: #fff;
+  font-size: 20px;
+  margin: 20px;
+}
+
+.restart-game {
+  background-color: #ffffffb8;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  z-index: 2;
+}
+
+.btn-reset-game {
+  background-color: #f8e45c;
+  font-size: 32px;
+  color: #000;
+  border: none;
+  padding: 10px 20px 0;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transform-style: preserve-3d;
+  transition: transform 0.1s;
+  font-family: Minecraft;
 }
-button:hover {
-  border-color: #646cff;
+
+.btn-reset-game:hover {
+  background-color: #aef11e;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+
+.btn-reset-game::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  bottom: -4px;
+  background-color: #e6c808;
+  transform: translateZ(-1px);
+}
+
+.btn-reset-game::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 100%;
+  right: -4px;
+  top: 0;
+  background-color: #e6c808;
+  transform: translateZ(-1px);
+}
+
+.player.stop {
+  background-image: url('./assets/dino.png');
 }
