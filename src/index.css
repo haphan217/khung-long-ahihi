@@ -27,15 +27,6 @@ body {
   src: url('./assets/Minecraft.ttf');
 }
 
-@keyframes bg-move {
-  0% {
-    background-position: 100%;
-  }
-  100% {
-    background-position: -50%;
-  }
-}
-
 .game-container {
   width: 960px;
   height: 422px;
@@ -45,6 +36,15 @@ body {
   background-image: url('./assets/background.jpg');
   background-size: contain;
   animation: bg-move 30s linear infinite;
+}
+
+@keyframes bg-move {
+  0% {
+    background-position: 960px;
+  }
+  100% {
+    background-position: -960px;
+  }
 }
 
 .player {
