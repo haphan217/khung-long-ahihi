@@ -1,13 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { GameState } from '../types'
+import classNames from 'classnames'
+
 const JUMP_DURATION = 800
 
 const tailWidth = 40
 const hornWidth = 20
 
-const Container = () => {
+interface Props {
+  happyLevel: number
+  gameState: GameState
+  setGameState: (gameState: GameState) => void
+}
+
+const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
   const [score, setScore] = useState(0)
-  const [isGameOver, setIsGameOver] = useState(false)
+  const isGameOver = gameState === GameState.GAME_OVER
+  const isIdle = gameState === GameState.IDLE
 
   const playerRef = useRef<HTMLDivElement>(null)
   const obstacleRef = useRef<HTMLDivElement>(null)
@@ -50,29 +60,26 @@ const Container = () => {
   }
 
   useEffect(() => {
-    if (isGameOver) {
-      console.log('-----gameOver', collisionIntervalRef.current)
+    if (isGameOver || isIdle) {
       clearInterval(collisionIntervalRef.current!)
       return
     }
 
     collisionIntervalRef.current = setInterval(() => {
       if (isCollided()) {
-        setIsGameOver(true)
-        console.log('-----isCollided')
+        setGameState(GameState.GAME_OVER)
       }
     }, 100)
 
     return () => {
       if (collisionIntervalRef.current) {
-        console.log('-----clearInterval', isGameOver)
         clearInterval(collisionIntervalRef.current)
       }
     }
-  }, [isGameOver])
+  }, [gameState])
 
   const restart = () => {
-    setIsGameOver(false)
+    setGameState(GameState.PLAYING)
     setScore(0)
     obstacleRef.current!.style.animation = 'none'
     void obstacleRef.current!.offsetWidth
@@ -86,10 +93,10 @@ const Container = () => {
         animationPlayState: isGameOver ? 'paused' : 'running'
       }}
     >
-      <div className='score-card'>{score}</div>
+      <div className='score-card'>Score: {score}</div>
       <div
         ref={playerRef}
-        className={`player ${isGameOver ? 'stop' : ''}`}
+        className={classNames('player', isGameOver && 'stop')}
         style={{
           animationDuration: `${JUMP_DURATION}ms`
         }}
@@ -99,19 +106,23 @@ const Container = () => {
         ref={obstacleRef}
         className='obstacle'
         style={{
-          animationPlayState: isGameOver ? 'paused' : 'running'
+          animationPlayState: gameState === GameState.PLAYING ? 'running' : 'paused'
         }}
       />
 
       {isGameOver && (
-        <div className='restart-game'>
-          <button onClick={restart} className='btn-reset-game'>
-            RESTART
-          </button>
+        <div className='restart-game mask'>
+          <button onClick={restart}>RESTART</button>
+        </div>
+      )}
+
+      {isIdle && (
+        <div className='mask'>
+          <button onClick={() => setGameState(GameState.PLAYING)}>START</button>
         </div>
       )}
     </div>
   )
 }
 
-export default Container
+export default Game
