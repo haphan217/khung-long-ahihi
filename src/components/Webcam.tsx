@@ -73,7 +73,7 @@ const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState }) => {
       })
 
       const detection = detections?.expressions.asSortedArray()[0]
-      console.log('happy', detection, detections.expressions)
+      // console.log('happy', detection, detections.expressions)
       if (resized && detection?.expression === 'happy') {
         onHappyLevelChange(detection.probability)
         faceapi.draw.drawDetections(canvasRef.current, resized)
