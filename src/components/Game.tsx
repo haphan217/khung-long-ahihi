@@ -1,12 +1,17 @@
+import classNames from 'classnames'
 import { useEffect, useRef, useState } from 'react'
 
 import { GameState } from '../types'
-import classNames from 'classnames'
 
 const JUMP_DURATION = 800
 
 const tailWidth = 40
 const hornWidth = 20
+
+interface HighScore {
+  name: string
+  score: number
+}
 
 interface Props {
   happyLevel: number
@@ -14,17 +19,27 @@ interface Props {
   setGameState: (gameState: GameState) => void
 }
 
+const LOCAL_STORAGE_KEY = 'highScore'
+
 const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
+  const savedHighScore = localStorage.getItem(LOCAL_STORAGE_KEY)
+  const [highScore, setHighScore] = useState<HighScore | null>(() =>
+    savedHighScore ? JSON.parse(savedHighScore) : null
+  )
   const [score, setScore] = useState(0)
-  const berryCollectedRef = useRef<boolean>(false)
+  const isNewHighScore = score > (highScore?.score || 0)
+
+  const [playerName, setPlayerName] = useState('')
 
   const isGameOver = gameState === GameState.GAME_OVER
   const isIdle = gameState === GameState.IDLE
 
   const playerRef = useRef<HTMLDivElement>(null)
   const obstacleRef = useRef<HTMLDivElement>(null)
-  const berryRef = useRef<HTMLDivElement>(null)
   const collisionIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const berryRef = useRef<HTMLDivElement>(null)
+  const berryCollectedRef = useRef<boolean>(false)
 
   const jump = () => {
     const player = playerRef.current
@@ -104,9 +119,9 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     }
 
     collisionIntervalRef.current = setInterval(() => {
-      // if (isCollided()) {
-      //   setGameState(GameState.GAME_OVER)
-      // }
+      if (isCollided()) {
+        setGameState(GameState.GAME_OVER)
+      }
       checkBerryCollision()
     }, 100)
 
@@ -117,9 +132,28 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     }
   }, [gameState])
 
+  const saveHighScore = (name: string) => {
+    const newHighScore: HighScore = {
+      name,
+      score
+    }
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newHighScore))
+    setHighScore(newHighScore)
+    setPlayerName('')
+
+    return true
+  }
+
   const restart = () => {
+    if (isNewHighScore) {
+      const trimmedName = playerName.trim()
+      if (!trimmedName) return false
+      saveHighScore(trimmedName)
+    }
+
     setGameState(GameState.PLAYING)
     setScore(0)
+    setPlayerName('')
     berryCollectedRef.current = false
 
     // Reset obstacle animation
@@ -135,7 +169,13 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
         animationPlayState: isGameOver ? 'paused' : 'running'
       }}
     >
+      {highScore && (
+        <div className='score-card'>
+          High score ( {highScore.name} ): {highScore.score}
+        </div>
+      )}
       <div className='score-card'>Score: {score}</div>
+
       <div
         ref={playerRef}
         className={classNames('player', isGameOver && 'stop')}
@@ -162,6 +202,26 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
 
       {isGameOver && (
         <div className='restart-game mask'>
+          {isNewHighScore && (
+            <div className='high-score'>
+              <h1
+                style={{
+                  color: '#aef11e',
+                  marginTop: 0
+                }}
+              >
+                New High Score!
+              </h1>
+              <input
+                type='text'
+                placeholder='Enter your name'
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                maxLength={20}
+                autoFocus
+              />
+            </div>
+          )}
           <button onClick={restart}>RESTART</button>
         </div>
       )}
