@@ -3,3 +3,8 @@ export enum GameState {
   PLAYING,
   GAME_OVER
 }
+
+export interface HighScore {
+  name: string
+  score: number
+}

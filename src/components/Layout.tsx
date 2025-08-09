@@ -11,7 +11,7 @@ const Layout = () => {
   return (
     <div>
       <Game happyLevel={happyLevel} gameState={gameState} setGameState={setGameState} />
-      {/* <Webcam onHappyLevelChange={setHappyLevel} gameState={gameState} /> */}
+      <Webcam onHappyLevelChange={setHappyLevel} gameState={gameState} />
     </div>
   )
 }

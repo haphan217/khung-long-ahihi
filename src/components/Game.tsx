@@ -1,24 +1,17 @@
 import classNames from 'classnames'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { GameState } from '../types'
-
-// Import audio files as modules
-import jumpSound from '../assets/yay.mp3'
 import eatSound from '../assets/eat.mp3'
 import gameOverSound from '../assets/game-over.mp3'
 import gameStartSound from '../assets/game-start.mp3'
 import winSound from '../assets/high-score.mp3'
+import jumpSound from '../assets/yay.mp3'
+import { GameState, type HighScore } from '../types'
+import GameOver, { LOCAL_STORAGE_KEY } from './GameOver'
 
 const JUMP_DURATION = 800
-
-const tailWidth = 40
-const hornWidth = 20
-
-interface HighScore {
-  name: string
-  score: number
-}
+const TAIL_WIDTH = 40
+const HORN_WIDTH = 20
 
 interface Props {
   happyLevel: number
@@ -26,12 +19,17 @@ interface Props {
   setGameState: (gameState: GameState) => void
 }
 
-const jumpAudio = new Audio(jumpSound)
-const eatAudio = new Audio(eatSound)
-const gameOverAudio = new Audio(gameOverSound)
-const gameStartAudio = new Audio(gameStartSound)
-const winAudio = new Audio(winSound)
-const LOCAL_STORAGE_KEY = 'highScore'
+const audioInstances = {
+  jump: new Audio(jumpSound),
+  eat: new Audio(eatSound),
+  gameOver: new Audio(gameOverSound),
+  gameStart: new Audio(gameStartSound),
+  win: new Audio(winSound)
+}
+
+Object.values(audioInstances).forEach((audio) => {
+  audio.preload = 'auto'
+})
 
 const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
   const savedHighScore = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -40,8 +38,6 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
   )
   const [score, setScore] = useState(0)
   const isNewHighScore = score > (highScore?.score || 0)
-
-  const [playerName, setPlayerName] = useState('')
 
   const isGameOver = gameState === GameState.GAME_OVER
   const isIdle = gameState === GameState.IDLE
@@ -53,26 +49,28 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
   const berryRef = useRef<HTMLDivElement>(null)
   const berryCollectedRef = useRef<boolean>(false)
 
-  const jump = () => {
+  // Memoize jump function to prevent recreation
+  const jump = useCallback(() => {
     const player = playerRef.current
-    if (player && !player.classList.contains('jump')) {
-      jumpAudio.play()
-      player.classList.add('jump')
-    }
+    if (!player || player.classList.contains('jump')) return
+
+    audioInstances.jump.currentTime = 0 // Reset audio for better responsiveness
+    audioInstances.jump.play()
+    player.classList.add('jump')
 
     setTimeout(() => {
       player?.classList.remove('jump')
     }, JUMP_DURATION)
-  }
+  }, [])
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === ' ') jump()
   }
 
-  // useEffect(() => {
-  //   console.log(happyLevel)
-  //   if (happyLevel > 0.9) jump()
-  // }, [happyLevel])
+  useEffect(() => {
+    console.log({ happyLevel })
+    if (happyLevel > 0.9) jump()
+  }, [happyLevel])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -81,7 +79,7 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     }
   }, [])
 
-  const isCollided = () => {
+  const isCollided = useCallback(() => {
     const playerClientRect = playerRef.current?.getBoundingClientRect()
     const obstacleClientRect = obstacleRef.current?.getBoundingClientRect()
     if (!playerClientRect || !obstacleClientRect) return false
@@ -89,13 +87,13 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     const { left: playerL, right: playerR, bottom: playerB } = playerClientRect
     const { left: obstacleL, right: obstacleR, top: obstacleT } = obstacleClientRect
 
-    const xCollision = obstacleR - tailWidth > playerL && obstacleL < playerR - hornWidth
+    const xCollision = obstacleR - TAIL_WIDTH > playerL && obstacleL < playerR - HORN_WIDTH
     const yCollision = playerB > obstacleT
 
     return xCollision && yCollision
-  }
+  }, [])
 
-  const checkBerryCollision = () => {
+  const checkBerryCollision = useCallback(() => {
     if (berryCollectedRef.current) return
 
     const playerClientRect = playerRef.current?.getBoundingClientRect()
@@ -110,39 +108,45 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     const yCollision = berryB > playerT && berryT < playerB
 
     if (xCollision && yCollision) {
-      eatAudio.play()
+      audioInstances.eat.currentTime = 0
+      audioInstances.eat.play()
       setScore((prev) => prev + 10)
       berryCollectedRef.current = true
       berryRef.current?.classList.add('collected')
 
       setTimeout(() => {
         berryCollectedRef.current = false
-        berryRef.current?.classList.remove('collected')
-        berryRef.current!.style.animation = 'none'
-        void berryRef.current!.offsetWidth
-        berryRef.current!.style.animation = 'move 3s linear infinite'
-        berryRef.current!.style.animationDelay = `${Math.random() * 1000}ms`
+        const berry = berryRef.current
+        if (berry) {
+          berry.classList.remove('collected')
+          berry.style.animation = 'none'
+          void berry.offsetWidth // Force reflow
+          berry.style.animation = 'move 3s linear infinite'
+          berry.style.animationDelay = `${Math.random() * 1000}ms`
+        }
       }, 3000)
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (isGameOver || isIdle) {
-      clearInterval(collisionIntervalRef.current!)
+      if (collisionIntervalRef.current) {
+        clearInterval(collisionIntervalRef.current)
+        collisionIntervalRef.current = null
+      }
 
       if (isGameOver && isNewHighScore) {
-        setTimeout(() => {
-          winAudio.play()
-        }, 1000)
+        setTimeout(() => audioInstances.win.play(), 1000)
       }
       return
     }
 
     collisionIntervalRef.current = setInterval(() => {
       if (isCollided()) {
-        gameOverAudio.play()
+        audioInstances.gameOver.currentTime = 0
+        audioInstances.gameOver.play().catch(() => {})
         setGameState(GameState.GAME_OVER)
-        if (isNewHighScore) winAudio.play()
+        berryRef.current?.classList.add('collected')
       }
       checkBerryCollision()
     }, 100)
@@ -150,40 +154,38 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     return () => {
       if (collisionIntervalRef.current) {
         clearInterval(collisionIntervalRef.current)
+        collisionIntervalRef.current = null
       }
     }
   }, [gameState])
 
-  const saveHighScore = (name: string) => {
-    const newHighScore: HighScore = {
-      name,
-      score
-    }
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newHighScore))
-    setHighScore(newHighScore)
-    setPlayerName('')
+  const handleReset = useCallback(
+    (highScore?: HighScore) => {
+      if (highScore) setHighScore(highScore)
 
-    return true
-  }
+      audioInstances.gameStart.currentTime = 0
+      audioInstances.gameStart.play().catch(() => {})
+      setGameState(GameState.PLAYING)
+      setScore(0)
+      berryCollectedRef.current = false
+      berryRef.current?.classList.remove('collected')
 
-  const restart = () => {
-    if (isNewHighScore) {
-      const trimmedName = playerName.trim()
-      if (!trimmedName) return false
-      saveHighScore(trimmedName)
-    }
+      // Reset obstacle animation
+      const obstacle = obstacleRef.current
+      if (obstacle) {
+        obstacle.style.animation = 'none'
+        void obstacle.offsetWidth // Force reflow
+        obstacle.style.animation = 'obstacle-move 6s linear infinite'
+      }
+    },
+    [setGameState]
+  )
 
-    gameStartAudio.play()
+  const handleStartGame = useCallback(() => {
+    audioInstances.gameStart.currentTime = 0
+    audioInstances.gameStart.play().catch(() => {})
     setGameState(GameState.PLAYING)
-    setScore(0)
-    setPlayerName('')
-    berryCollectedRef.current = false
-
-    // Reset obstacle animation
-    obstacleRef.current!.style.animation = 'none'
-    void obstacleRef.current!.offsetWidth
-    obstacleRef.current!.style.animation = 'obstacle-move 6s linear infinite'
-  }
+  }, [setGameState])
 
   return (
     <div
@@ -229,38 +231,11 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
         }}
       />
 
-      {isGameOver && (
-        <div className='restart-game mask'>
-          {isNewHighScore && (
-            <div className='high-score'>
-              <h1>
-                <div className='trophy big' style={{ margin: '0 12px 0' }} />
-                New High Score!
-              </h1>
-              <input
-                type='text'
-                placeholder='Enter your name'
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                maxLength={50}
-                autoFocus
-              />
-            </div>
-          )}
-          <button onClick={restart}>RESTART</button>
-        </div>
-      )}
+      {isGameOver && <GameOver onReset={handleReset} newHighScore={isNewHighScore ? score : undefined} />}
 
       {isIdle && (
         <div className='mask'>
-          <button
-            onClick={() => {
-              gameStartAudio.play()
-              setGameState(GameState.PLAYING)
-            }}
-          >
-            START
-          </button>
+          <button onClick={handleStartGame}>START</button>
         </div>
       )}
     </div>

@@ -89,19 +89,10 @@ body {
   height: 40px;
   position: absolute;
   bottom: 40px;
-  left: 80%;
-  animation: obstacle-move 7s linear infinite;
+  left: 100%;
+  animation: obstacle-move 7s linear infinite 3s;
   background-image: url('./assets/rock.webp');
   background-size: contain;
-}
-
-@keyframes move {
-  0% {
-    left: 100%;
-  }
-  100% {
-    left: -100px;
-  }
 }
 
 @keyframes obstacle-move {
@@ -110,6 +101,15 @@ body {
   }
   50% {
     left: -100px;
+  }
+  100% {
+    left: -100px;
+  }
+}
+
+@keyframes move {
+  0% {
+    left: 100%;
   }
   100% {
     left: -100px;
@@ -168,6 +168,7 @@ body {
   color: #000;
   text-shadow: 0 0 4px #e6c808;
   margin-top: 0;
+  text-transform: uppercase;
 }
 
 .high-score input {

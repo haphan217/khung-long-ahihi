@@ -1,5 +1,5 @@
 import * as faceapi from 'face-api.js'
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 
 import { GameState } from '../types'
 
@@ -100,4 +100,4 @@ const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState }) => {
   )
 }
 
-export default Webcam
+export default memo(Webcam)
