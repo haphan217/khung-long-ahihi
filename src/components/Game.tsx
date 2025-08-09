@@ -3,6 +3,13 @@ import { useEffect, useRef, useState } from 'react'
 
 import { GameState } from '../types'
 
+// Import audio files as modules
+import jumpSound from '../assets/yay.mp3'
+import eatSound from '../assets/eat.mp3'
+import gameOverSound from '../assets/game-over.mp3'
+import gameStartSound from '../assets/game-start.mp3'
+import winSound from '../assets/high-score.mp3'
+
 const JUMP_DURATION = 800
 
 const tailWidth = 40
@@ -19,6 +26,11 @@ interface Props {
   setGameState: (gameState: GameState) => void
 }
 
+const jumpAudio = new Audio(jumpSound)
+const eatAudio = new Audio(eatSound)
+const gameOverAudio = new Audio(gameOverSound)
+const gameStartAudio = new Audio(gameStartSound)
+const winAudio = new Audio(winSound)
 const LOCAL_STORAGE_KEY = 'highScore'
 
 const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
@@ -44,6 +56,7 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
   const jump = () => {
     const player = playerRef.current
     if (player && !player.classList.contains('jump')) {
+      jumpAudio.play()
       player.classList.add('jump')
     }
 
@@ -97,6 +110,7 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     const yCollision = berryB > playerT && berryT < playerB
 
     if (xCollision && yCollision) {
+      eatAudio.play()
       setScore((prev) => prev + 10)
       berryCollectedRef.current = true
       berryRef.current?.classList.add('collected')
@@ -115,12 +129,20 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
   useEffect(() => {
     if (isGameOver || isIdle) {
       clearInterval(collisionIntervalRef.current!)
+
+      if (isGameOver && isNewHighScore) {
+        setTimeout(() => {
+          winAudio.play()
+        }, 1000)
+      }
       return
     }
 
     collisionIntervalRef.current = setInterval(() => {
       if (isCollided()) {
+        gameOverAudio.play()
         setGameState(GameState.GAME_OVER)
+        if (isNewHighScore) winAudio.play()
       }
       checkBerryCollision()
     }, 100)
@@ -151,6 +173,7 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
       saveHighScore(trimmedName)
     }
 
+    gameStartAudio.play()
     setGameState(GameState.PLAYING)
     setScore(0)
     setPlayerName('')
@@ -171,10 +194,16 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     >
       {highScore && (
         <div className='score-card'>
-          High score ( {highScore.name} ): {highScore.score}
+          <div className='trophy' />
+          <div style={{ paddingTop: 10 }}>
+            {highScore.score} ( {highScore.name} )
+          </div>
         </div>
       )}
-      <div className='score-card'>Score: {score}</div>
+      <div className='score-card'>
+        <div className='berry-small' />
+        <div style={{ paddingTop: 10 }}>{score}</div>
+      </div>
 
       <div
         ref={playerRef}
@@ -204,12 +233,8 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
         <div className='restart-game mask'>
           {isNewHighScore && (
             <div className='high-score'>
-              <h1
-                style={{
-                  color: '#aef11e',
-                  marginTop: 0
-                }}
-              >
+              <h1>
+                <div className='trophy big' style={{ margin: '0 12px 0' }} />
                 New High Score!
               </h1>
               <input
@@ -217,7 +242,7 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
                 placeholder='Enter your name'
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
-                maxLength={20}
+                maxLength={50}
                 autoFocus
               />
             </div>
@@ -228,7 +253,14 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
 
       {isIdle && (
         <div className='mask'>
-          <button onClick={() => setGameState(GameState.PLAYING)}>START</button>
+          <button
+            onClick={() => {
+              gameStartAudio.play()
+              setGameState(GameState.PLAYING)
+            }}
+          >
+            START
+          </button>
         </div>
       )}
     </div>

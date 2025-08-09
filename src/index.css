@@ -126,26 +126,53 @@ body {
   background-image: url('./assets/berry.png');
   background-size: contain;
 }
+.berry-small {
+  width: 40px;
+  height: 40px;
+  background-image: url('./assets/berry.png');
+  background-size: contain;
+  display: inline-block;
+}
+
+.trophy {
+  width: 25px;
+  height: 25px;
+  background-image: url('./assets/trophy.png');
+  background-size: contain;
+  display: inline-block;
+  margin: 12px 8px 8px;
+}
+
+.trophy.big {
+  width: 60px;
+  height: 60px;
+}
 
 .berry.collected {
   opacity: 0;
-  transform: scale(0);
-  transition: all 0.3s ease-out;
 }
 
 .score-card {
   color: #fff;
   font-size: 24px;
-  margin: 20px;
+  margin: 0 12px;
+  display: flex;
+  align-items: center;
 }
 
 .high-score {
   text-align: center;
 }
 
+.high-score h1 {
+  color: #000;
+  text-shadow: 0 0 4px #e6c808;
+  margin-top: 0;
+}
+
 .high-score input {
   padding: 10px;
-  font-size: 16px;
+  font-size: 20px;
   border: 2px solid #e6c808;
   border-radius: 5px;
   font-family: Minecraft;
