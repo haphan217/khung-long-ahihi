@@ -1,5 +1,5 @@
 import * as faceapi from 'face-api.js'
-import { memo, useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef } from 'react'
 
 import { GameState } from '../types'
 
@@ -9,11 +9,10 @@ const WIDTH = 640
 interface Props {
   onHappyLevelChange: (happyLevel: number) => void
   gameState: GameState
+  onModelsLoaded: () => void
 }
 
-const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState }) => {
-  const [modelsLoaded, setModelsLoaded] = useState(false)
-
+const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState, onModelsLoaded }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
@@ -26,7 +25,7 @@ const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState }) => {
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
         faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
-      ]).then(() => setModelsLoaded(true))
+      ]).then(() => onModelsLoaded())
     }
     loadModels()
   }, [])
@@ -89,8 +88,6 @@ const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState }) => {
     ;(videoRef.current.srcObject as MediaStream).getTracks()[0].stop()
     clearInterval(intervalRef.current!)
   }
-
-  if (!modelsLoaded) return null
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '10px' }}>
