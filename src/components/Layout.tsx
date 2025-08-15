@@ -8,10 +8,9 @@ const Layout = () => {
   const [gameState, setGameState] = useState(GameState.IDLE)
   const [happyLevel, setHappyLevel] = useState(0)
   const [modelsLoaded, setModelsLoaded] = useState(false)
-
   return (
     <div>
-      {modelsLoaded && <Game happyLevel={happyLevel} gameState={gameState} setGameState={setGameState} />}
+      {modelsLoaded && <Game isHappy={happyLevel > 0.9} gameState={gameState} setGameState={setGameState} />}
       <Webcam onHappyLevelChange={setHappyLevel} gameState={gameState} onModelsLoaded={() => setModelsLoaded(true)} />
     </div>
   )

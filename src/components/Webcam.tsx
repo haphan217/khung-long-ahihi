@@ -55,7 +55,7 @@ const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState, onModelsLoaded
     intervalRef.current = setInterval(async () => {
       if (!videoRef.current || !canvasRef.current) return
 
-      canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(videoRef.current)
+      canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(videoRef.current) as unknown as string
       faceapi.matchDimensions(canvasRef.current, {
         width: WIDTH,
         height: HEIGHT
@@ -91,7 +91,13 @@ const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState, onModelsLoaded
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '10px' }}>
-      <video ref={videoRef} height={HEIGHT} width={WIDTH} onPlay={handleVideoOnPlay} style={{ borderRadius: '10px' }} />
+      <video
+        ref={videoRef}
+        height={HEIGHT}
+        width={WIDTH}
+        onPlay={handleVideoOnPlay}
+        style={{ borderRadius: '12px', border: '3px solid #e6c808' }}
+      />
       <canvas ref={canvasRef} style={{ position: 'absolute' }} />
     </div>
   )

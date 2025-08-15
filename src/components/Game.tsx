@@ -1,6 +1,7 @@
 import classNames from 'classnames'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import backgroundSound from '../assets/background.mp3'
 import eatSound from '../assets/eat.mp3'
 import gameOverSound from '../assets/game-over.mp3'
 import gameStartSound from '../assets/game-start.mp3'
@@ -9,12 +10,12 @@ import jumpSound from '../assets/yay.mp3'
 import { GameState, type HighScore } from '../types'
 import GameOver, { LOCAL_STORAGE_KEY } from './GameOver'
 
-const JUMP_DURATION = 800
+const JUMP_DURATION = 1200
 const TAIL_WIDTH = 40
 const HORN_WIDTH = 20
 
 interface Props {
-  happyLevel: number
+  isHappy: boolean
   gameState: GameState
   setGameState: (gameState: GameState) => void
 }
@@ -24,21 +25,21 @@ const audioInstances = {
   eat: new Audio(eatSound),
   gameOver: new Audio(gameOverSound),
   gameStart: new Audio(gameStartSound),
-  win: new Audio(winSound)
+  win: new Audio(winSound),
+  background: new Audio(backgroundSound)
 }
 
 Object.values(audioInstances).forEach((audio) => {
   audio.preload = 'auto'
 })
 
-const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
+const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
   const savedHighScore = localStorage.getItem(LOCAL_STORAGE_KEY)
   const [highScore, setHighScore] = useState<HighScore | null>(() =>
     savedHighScore ? JSON.parse(savedHighScore) : null
   )
   const [score, setScore] = useState(0)
   const isNewHighScore = score > (highScore?.score || 0)
-
   const isGameOver = gameState === GameState.GAME_OVER
   const isIdle = gameState === GameState.IDLE
 
@@ -70,9 +71,9 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
   }
 
   useEffect(() => {
-    console.log({ happyLevel })
-    if (happyLevel > 0.9) jump()
-  }, [happyLevel])
+    console.log({ isHappy })
+    if (isHappy) jump()
+  }, [isHappy])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -172,12 +173,11 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
       berryCollectedRef.current = false
       berryRef.current?.classList.remove('collected')
 
-      // Reset obstacle animation
       const obstacle = obstacleRef.current
       if (obstacle) {
         obstacle.style.animation = 'none'
         void obstacle.offsetWidth // Force reflow
-        obstacle.style.animation = 'obstacle-move 6s linear infinite'
+        obstacle.style.animation = `obstacle-move 6s linear infinite`
       }
     },
     [setGameState]
@@ -187,6 +187,13 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
     audioInstances.gameStart.currentTime = 0
     audioInstances.gameStart.play().catch(() => {})
     setGameState(GameState.PLAYING)
+    setShowHelp(false)
+
+    // play background music if not playing
+    if (audioInstances.background.currentTime === 0) {
+      audioInstances.background.play().catch(() => {})
+      audioInstances.background.loop = true
+    }
   }, [setGameState])
 
   return (
@@ -208,6 +215,8 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
         <div className='berry-small' />
         <div style={{ paddingTop: 10 }}>{score}</div>
       </div>
+
+      <div className='help' onClick={() => setShowHelp((prev) => !prev)} />
 
       <div
         ref={playerRef}
