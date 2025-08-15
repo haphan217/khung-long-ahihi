@@ -40,26 +40,30 @@ const GameOver = ({ onReset, newHighScore }: Props) => {
   }, [reset])
 
   return (
-    <div className='restart-game mask'>
-      {newHighScore && (
-        <div className='high-score'>
-          <h1>
-            <div className='trophy big' style={{ margin: '0 12px 0' }} />
-            New High Score!
-            <div className='trophy big' style={{ margin: '0 12px 0' }} />
-          </h1>
-          <input
-            type='text'
-            placeholder='Enter your name'
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-            maxLength={50}
-            autoFocus
-          />
-        </div>
-      )}
-      <button onClick={reset}>RESET</button>
-    </div>
+    <>
+      <div className='restart-game mask'>
+        {newHighScore && (
+          <div className='high-score'>
+            <h1>
+              <div className='trophy big' style={{ margin: '0 12px 0' }} />
+              New High Score!
+              <div className='trophy big' style={{ margin: '0 12px 0' }} />
+            </h1>
+            <input
+              type='text'
+              placeholder='Enter your name'
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              maxLength={50}
+              autoFocus
+            />
+          </div>
+        )}
+        <button onClick={reset}>RESET</button>
+      </div>
+
+      {newHighScore && <div className='applause' />}
+    </>
   )
 }
 

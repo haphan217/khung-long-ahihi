@@ -96,7 +96,7 @@ const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState, onModelsLoaded
         height={HEIGHT}
         width={WIDTH}
         onPlay={handleVideoOnPlay}
-        style={{ borderRadius: '12px', border: '3px solid #e6c808' }}
+        style={{ borderRadius: '12px', border: '3px solid #e6c808', boxShadow: '0 0 20px 0 rgba(0, 0, 0, 0.5)' }}
       />
       <canvas ref={canvasRef} style={{ position: 'absolute' }} />
     </div>

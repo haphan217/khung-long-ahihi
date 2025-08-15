@@ -4,15 +4,19 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import backgroundSound from '../assets/background.mp3'
 import eatSound from '../assets/eat.mp3'
 import gameOverSound from '../assets/game-over.mp3'
-import gameStartSound from '../assets/game-start.mp3'
 import winSound from '../assets/high-score.mp3'
 import jumpSound from '../assets/yay.mp3'
+import ouchSound from '../assets/game-over-1.mp3'
+import clapSound from '../assets/high-score-2.mp3'
+import letsGoSound from '../assets/lets-go.mp3'
 import { GameState, type HighScore } from '../types'
 import GameOver, { LOCAL_STORAGE_KEY } from './GameOver'
 
 const JUMP_DURATION = 1200
 const TAIL_WIDTH = 40
 const HORN_WIDTH = 20
+
+const SPEED_SLOW = 7
 
 interface Props {
   isHappy: boolean
@@ -24,9 +28,11 @@ const audioInstances = {
   jump: new Audio(jumpSound),
   eat: new Audio(eatSound),
   gameOver: new Audio(gameOverSound),
-  gameStart: new Audio(gameStartSound),
   win: new Audio(winSound),
-  background: new Audio(backgroundSound)
+  background: new Audio(backgroundSound),
+  ouch: new Audio(ouchSound),
+  clap: new Audio(clapSound),
+  letsGo: new Audio(letsGoSound)
 }
 
 Object.values(audioInstances).forEach((audio) => {
@@ -139,7 +145,10 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
       }
 
       if (isGameOver && isNewHighScore) {
-        setTimeout(() => audioInstances.win.play(), 1000)
+        setTimeout(async () => {
+          await audioInstances.win.play()
+          audioInstances.clap.play()
+        }, 1000)
       }
       return
     }
@@ -147,7 +156,11 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
     collisionIntervalRef.current = setInterval(() => {
       if (isCollided()) {
         audioInstances.gameOver.currentTime = 0
-        audioInstances.gameOver.play().catch(() => {})
+        audioInstances.ouch.play().then(() => {
+          setTimeout(() => {
+            audioInstances.gameOver.play().catch(() => {})
+          }, 500)
+        })
         setGameState(GameState.GAME_OVER)
         berryRef.current?.classList.add('collected')
       }
@@ -162,12 +175,19 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
     }
   }, [gameState])
 
+  // useEffect(() => {
+  //   if (score !== 10) return
+
+  //   const obstacle = obstacleRef.current
+  //   if (obstacle) obstacle.style.animation = `obstacle-move ${SPEED_FAST}s linear infinite 2s`
+  // }, [score])
+
   const handleReset = useCallback(
     (highScore?: HighScore) => {
       if (highScore) setHighScore(highScore)
 
-      audioInstances.gameStart.currentTime = 0
-      audioInstances.gameStart.play().catch(() => {})
+      audioInstances.letsGo.currentTime = 0
+      audioInstances.letsGo.play()
       setGameState(GameState.PLAYING)
       setScore(0)
       berryCollectedRef.current = false
@@ -177,15 +197,15 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
       if (obstacle) {
         obstacle.style.animation = 'none'
         void obstacle.offsetWidth // Force reflow
-        obstacle.style.animation = `obstacle-move 6s linear infinite`
+        obstacle.style.animation = `obstacle-move ${SPEED_SLOW}s linear infinite 3s`
       }
     },
     [setGameState]
   )
 
   const handleStartGame = useCallback(() => {
-    audioInstances.gameStart.currentTime = 0
-    audioInstances.gameStart.play().catch(() => {})
+    audioInstances.letsGo.currentTime = 0
+    audioInstances.letsGo.play()
     setGameState(GameState.PLAYING)
     setShowHelp(false)
 
@@ -199,9 +219,12 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
   return (
     <div
       className='game-container'
-      style={{
-        animationPlayState: isGameOver ? 'paused' : 'running'
-      }}
+      style={
+        {
+          animationPlayState: isGameOver ? 'paused' : 'running',
+          '--speed': SPEED_SLOW + 's'
+        } as React.CSSProperties
+      }
     >
       {highScore && (
         <div className='score-card'>
