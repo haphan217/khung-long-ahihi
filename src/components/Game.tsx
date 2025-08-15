@@ -49,6 +49,8 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
   const berryRef = useRef<HTMLDivElement>(null)
   const berryCollectedRef = useRef<boolean>(false)
 
+  const [showHelp, setShowHelp] = useState(true)
+
   // Memoize jump function to prevent recreation
   const jump = useCallback(() => {
     const player = playerRef.current
@@ -236,6 +238,12 @@ const Game: React.FC<Props> = ({ happyLevel, gameState, setGameState }) => {
       {isIdle && (
         <div className='mask'>
           <button onClick={handleStartGame}>START</button>
+        </div>
+      )}
+
+      {showHelp && (
+        <div className='help-modal'>
+          Bạn hãy cười thật tươi để giúp chú khủng long nhảy qua chướng ngại vật và ăn trái cây nhé!
         </div>
       )}
     </div>

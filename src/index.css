@@ -14,6 +14,10 @@
 #root {
   width: 100vw;
   height: 100vh;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+    url('https://img.freepik.com/premium-vector/vector-illustration-seamless-pattern-with-dinosaurus-brown-background-illustrations-boys-prints-tshirts-children-design-kids-textile-fabric_542399-1843.jpg');
+  background-repeat: repeat;
 }
 
 body {
@@ -36,6 +40,8 @@ body {
   background-image: url('./assets/background.jpg');
   background-size: contain;
   animation: bg-move 30s linear infinite;
+  border: 3px solid #e6c808;
+  border-radius: 12px;
 }
 
 @keyframes bg-move {
@@ -200,6 +206,20 @@ body {
   background-color: #ffffffb8;
 }
 
+.help-modal {
+  position: absolute;
+  z-index: 10;
+  top: 40px;
+  right: 10px;
+  background-color: white;
+  border: 2px solid #e6c808;
+  border-radius: 12px;
+  padding: 10px;
+  width: 200px;
+  color: #000;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+}
+
 button {
   background-color: #f8e45c;
   font-size: 32px;
@@ -237,4 +257,16 @@ button::after {
   top: 0;
   background-color: #e6c808;
   transform: translateZ(-1px);
+}
+
+.help {
+  width: 40px;
+  height: 40px;
+  background-image: url('./assets/help.png');
+  background-size: contain;
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  cursor: pointer;
+  z-index: 10;
 }
