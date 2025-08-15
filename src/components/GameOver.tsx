@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { type HighScore } from '../types'
 
@@ -29,6 +29,15 @@ const GameOver = ({ onReset, newHighScore }: Props) => {
     setPlayerName('')
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(highScore))
   }
+
+  // call reset on enter key
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') reset()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [reset])
 
   return (
     <div className='restart-game mask'>
