@@ -4,7 +4,7 @@ import { memo, useEffect, useRef } from 'react'
 import { GameState } from '../types'
 
 const HEIGHT = 420
-const WIDTH = 640
+const WIDTH = 560
 
 interface Props {
   onHappyLevelChange: (happyLevel: number) => void
@@ -90,7 +90,7 @@ const Webcam: React.FC<Props> = ({ onHappyLevelChange, gameState, onModelsLoaded
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '10px' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '10px', paddingTop: 0 }}>
       <video
         ref={videoRef}
         height={HEIGHT}

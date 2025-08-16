@@ -4,6 +4,7 @@ import { GameState, type HighScore } from '../types'
 import Game from './Game'
 import Webcam from './Webcam'
 import { LOCAL_STORAGE_KEY } from './GameOver'
+import logo from '../assets/fpt-logo.png'
 
 const Layout = () => {
   const [gameState, setGameState] = useState(GameState.IDLE)
@@ -17,7 +18,7 @@ const Layout = () => {
     <div>
       {modelsLoaded && (
         <Game
-          isHappy={happyLevel > 0.9}
+          isHappy={happyLevel > 0.8}
           gameState={gameState}
           setGameState={setGameState}
           highScore={highScore}
@@ -39,6 +40,8 @@ const Layout = () => {
           ))}
         </div>
       )}
+
+      <img src={logo} alt='logo' className='logo' />
     </div>
   )
 }

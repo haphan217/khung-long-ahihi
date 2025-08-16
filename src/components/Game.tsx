@@ -13,8 +13,8 @@ import { GameState, type HighScore, type PlayerScore } from '../types'
 import GameOver, { LOCAL_STORAGE_KEY } from './GameOver'
 
 const JUMP_DURATION = 1200
-const TAIL_WIDTH = 50
-const HORN_WIDTH = 50
+const TAIL_WIDTH = 65
+const HORN_WIDTH = 65
 
 const SPEED_SLOW = 7
 
@@ -201,7 +201,7 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
       if (obstacle) {
         obstacle.style.animation = 'none'
         void obstacle.offsetWidth // Force reflow
-        obstacle.style.animation = `obstacle-move ${SPEED_SLOW}s linear infinite 3s`
+        obstacle.style.animation = `obstacle-move ${SPEED_SLOW}s linear infinite 13s`
       }
     },
     [setGameState, highScore]
