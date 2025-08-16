@@ -260,6 +260,13 @@ body {
   background-color: #ffffffb8;
 }
 
+.restart-game .berry {
+  animation: none;
+  position: static;
+  display: inline-block;
+  margin: 0 0 -12px;
+}
+
 .help-modal {
   position: absolute;
   z-index: 10;

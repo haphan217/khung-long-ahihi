@@ -269,7 +269,7 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
         }}
       />
 
-      {isGameOver && <GameOver onReset={handleReset} newHighScore={isNewHighScore ? score : undefined} />}
+      {isGameOver && <GameOver score={score} onReset={handleReset} newHighScore={isNewHighScore ? score : undefined} />}
 
       {isIdle && (
         <div className='mask'>

@@ -7,9 +7,10 @@ export const LOCAL_STORAGE_KEY = 'highScore'
 interface Props {
   onReset: (highScore?: PlayerScore) => void
   newHighScore?: number
+  score: number
 }
 
-const GameOver = ({ onReset, newHighScore }: Props) => {
+const GameOver = ({ onReset, newHighScore, score }: Props) => {
   const [playerName, setPlayerName] = useState('')
 
   const reset = () => {
@@ -41,7 +42,7 @@ const GameOver = ({ onReset, newHighScore }: Props) => {
   return (
     <>
       <div className='restart-game mask'>
-        {newHighScore && (
+        {newHighScore ? (
           <div className='high-score'>
             <h1>
               <div className='trophy big' style={{ margin: '0 12px 0' }} />
@@ -56,6 +57,12 @@ const GameOver = ({ onReset, newHighScore }: Props) => {
               maxLength={50}
               autoFocus
             />
+          </div>
+        ) : (
+          <div className='high-score'>
+            <h1 style={{ margin: 0 }}>
+              You got {score} <span className='berry' />!
+            </h1>
           </div>
         )}
         <button onClick={reset}>RESET</button>
