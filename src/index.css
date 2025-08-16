@@ -277,7 +277,7 @@ button::after {
   left: 0;
   right: 0;
   height: 300px;
-  background-image: url('./applause.gif');
+  background-image: url('./assets/applause.gif');
   background-size: contain;
   background-position: center;
   background-repeat: repeat-x;
