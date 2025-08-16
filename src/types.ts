@@ -4,7 +4,9 @@ export enum GameState {
   GAME_OVER
 }
 
-export interface HighScore {
+export interface PlayerScore {
   name: string
   score: number
 }
+
+export type HighScore = PlayerScore[]

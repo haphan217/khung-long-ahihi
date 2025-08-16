@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 
-import { type HighScore } from '../types'
+import { type PlayerScore } from '../types'
 
 export const LOCAL_STORAGE_KEY = 'highScore'
 
 interface Props {
-  onReset: (highScore?: HighScore) => void
+  onReset: (highScore?: PlayerScore) => void
   newHighScore?: number
 }
 
@@ -21,13 +21,12 @@ const GameOver = ({ onReset, newHighScore }: Props) => {
     const trimmedName = playerName.trim()
     if (!trimmedName) return false
 
-    const highScore: HighScore = {
+    const highScore: PlayerScore = {
       name: playerName,
       score: newHighScore
     }
     onReset(highScore)
     setPlayerName('')
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(highScore))
   }
 
   // call reset on enter key

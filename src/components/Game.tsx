@@ -9,7 +9,7 @@ import jumpSound from '../assets/yay.mp3'
 import ouchSound from '../assets/game-over-1.mp3'
 import clapSound from '../assets/high-score-2.mp3'
 import letsGoSound from '../assets/lets-go.mp3'
-import { GameState, type HighScore } from '../types'
+import { GameState, type HighScore, type PlayerScore } from '../types'
 import GameOver, { LOCAL_STORAGE_KEY } from './GameOver'
 
 const JUMP_DURATION = 1200
@@ -22,6 +22,8 @@ interface Props {
   isHappy: boolean
   gameState: GameState
   setGameState: (gameState: GameState) => void
+  highScore: HighScore
+  setHighScore: (highScore: HighScore) => void
 }
 
 const audioInstances = {
@@ -39,13 +41,10 @@ Object.values(audioInstances).forEach((audio) => {
   audio.preload = 'auto'
 })
 
-const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
-  const savedHighScore = localStorage.getItem(LOCAL_STORAGE_KEY)
-  const [highScore, setHighScore] = useState<HighScore | null>(() =>
-    savedHighScore ? JSON.parse(savedHighScore) : null
-  )
+const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, setHighScore }) => {
   const [score, setScore] = useState(0)
-  const isNewHighScore = score > (highScore?.score || 0)
+  const isNewHighScore = score > 0 && (highScore.length < 5 || score > Math.min(...highScore.map((hs) => hs.score)))
+
   const isGameOver = gameState === GameState.GAME_OVER
   const isIdle = gameState === GameState.IDLE
 
@@ -183,8 +182,13 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
   // }, [score])
 
   const handleReset = useCallback(
-    (highScore?: HighScore) => {
-      if (highScore) setHighScore(highScore)
+    (newHighScore?: PlayerScore) => {
+      if (newHighScore) {
+        // Add new score to leaderboard and sort by score (descending)
+        const updatedLeaderboard = [...highScore, newHighScore].sort((a, b) => b.score - a.score).slice(0, 5) // Keep only top 5
+        setHighScore(updatedLeaderboard)
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedLeaderboard))
+      }
 
       audioInstances.letsGo.currentTime = 0
       audioInstances.letsGo.play()
@@ -200,7 +204,7 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
         obstacle.style.animation = `obstacle-move ${SPEED_SLOW}s linear infinite 3s`
       }
     },
-    [setGameState]
+    [setGameState, highScore]
   )
 
   const handleStartGame = useCallback(() => {
@@ -226,11 +230,11 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState }) => {
         } as React.CSSProperties
       }
     >
-      {highScore && (
+      {highScore.length > 0 && (
         <div className='score-card'>
           <div className='trophy' />
           <div style={{ paddingTop: 10 }}>
-            {highScore.score} ( {highScore.name} )
+            {highScore[0].score} ( {highScore[0].name} )
           </div>
         </div>
       )}
