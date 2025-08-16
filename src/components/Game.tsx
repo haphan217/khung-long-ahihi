@@ -14,7 +14,7 @@ import GameOver, { LOCAL_STORAGE_KEY } from './GameOver'
 
 const JUMP_DURATION = 1200
 const TAIL_WIDTH = 50
-const HORN_WIDTH = 30
+const HORN_WIDTH = 50
 
 const SPEED_SLOW = 7
 
