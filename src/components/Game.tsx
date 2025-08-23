@@ -63,21 +63,21 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
     }, JUMP_DURATION)
   }, [])
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === ' ') jump()
-  }
+  // const handleKeyDown = (event: KeyboardEvent) => {
+  //   if (event.key === ' ') jump()
+  // }
 
   useEffect(() => {
     console.log({ isHappy })
     if (isHappy) jump()
   }, [isHappy])
 
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
+  // useEffect(() => {
+  //   window.addEventListener('keydown', handleKeyDown)
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyDown)
+  //   }
+  // }, [])
 
   const isCollided = useCallback(() => {
     const playerClientRect = playerRef.current?.getBoundingClientRect()
