@@ -1,14 +1,6 @@
 import classNames from 'classnames'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import backgroundSound from '../assets/background.mp3'
-import eatSound from '../assets/eat.mp3'
-import gameOverSound from '../assets/game-over.mp3'
-import winSound from '../assets/high-score.mp3'
-import jumpSound from '../assets/yay.mp3'
-import ouchSound from '../assets/game-over-1.mp3'
-import clapSound from '../assets/high-score-2.mp3'
-import letsGoSound from '../assets/lets-go.mp3'
 import { GameState, type HighScore, type PlayerScore } from '../types'
 import GameOver, { LOCAL_STORAGE_KEY } from './GameOver'
 
@@ -26,20 +18,20 @@ interface Props {
   setHighScore: (highScore: HighScore) => void
 }
 
-const audioInstances = {
-  jump: new Audio(jumpSound),
-  eat: new Audio(eatSound),
-  gameOver: new Audio(gameOverSound),
-  win: new Audio(winSound),
-  background: new Audio(backgroundSound),
-  ouch: new Audio(ouchSound),
-  clap: new Audio(clapSound),
-  letsGo: new Audio(letsGoSound)
-}
+// const audioInstances = {
+//   jump: new Audio(jumpSound),
+//   eat: new Audio(eatSound),
+//   gameOver: new Audio(gameOverSound),
+//   win: new Audio(winSound),
+//   background: new Audio(backgroundSound),
+//   ouch: new Audio(ouchSound),
+//   clap: new Audio(clapSound),
+//   letsGo: new Audio(letsGoSound)
+// }
 
-Object.values(audioInstances).forEach((audio) => {
-  audio.preload = 'auto'
-})
+// Object.values(audioInstances).forEach((audio) => {
+//   audio.preload = 'auto'
+// })
 
 const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, setHighScore }) => {
   const [score, setScore] = useState(0)
@@ -62,8 +54,8 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
     const player = playerRef.current
     if (!player || player.classList.contains('jump')) return
 
-    audioInstances.jump.currentTime = 0 // Reset audio for better responsiveness
-    audioInstances.jump.play()
+    // audioInstances.jump.currentTime = 0 // Reset audio for better responsiveness
+    // audioInstances.jump.play()
     player.classList.add('jump')
 
     setTimeout(() => {
@@ -116,8 +108,8 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
     const yCollision = berryB > playerT && berryT < playerB
 
     if (xCollision && yCollision) {
-      audioInstances.eat.currentTime = 0
-      audioInstances.eat.play()
+      // audioInstances.eat.currentTime = 0
+      // audioInstances.eat.play()
       setScore((prev) => prev + 10)
       berryCollectedRef.current = true
       berryRef.current?.classList.add('collected')
@@ -145,8 +137,8 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
 
       if (isGameOver && isNewHighScore) {
         setTimeout(async () => {
-          await audioInstances.win.play()
-          audioInstances.clap.play()
+          // await audioInstances.win.play()
+          // audioInstances.clap.play()
         }, 1000)
       }
       return
@@ -154,12 +146,12 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
 
     collisionIntervalRef.current = setInterval(() => {
       if (isCollided()) {
-        audioInstances.gameOver.currentTime = 0
-        audioInstances.ouch.play().then(() => {
-          setTimeout(() => {
-            audioInstances.gameOver.play().catch(() => {})
-          }, 500)
-        })
+        // audioInstances.gameOver.currentTime = 0
+        // audioInstances.ouch.play().then(() => {
+        //   setTimeout(() => {
+        //     audioInstances.gameOver.play().catch(() => {})
+        //   }, 500)
+        // })
         setGameState(GameState.GAME_OVER)
         berryRef.current?.classList.add('collected')
       }
@@ -190,8 +182,8 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedLeaderboard))
       }
 
-      audioInstances.letsGo.currentTime = 0
-      audioInstances.letsGo.play()
+      // audioInstances.letsGo.currentTime = 0
+      // audioInstances.letsGo.play()
       setGameState(GameState.PLAYING)
       setScore(0)
       berryCollectedRef.current = false
@@ -208,16 +200,16 @@ const Game: React.FC<Props> = ({ isHappy, gameState, setGameState, highScore, se
   )
 
   const handleStartGame = useCallback(() => {
-    audioInstances.letsGo.currentTime = 0
-    audioInstances.letsGo.play()
+    // audioInstances.letsGo.currentTime = 0
+    // audioInstances.letsGo.play()
     setGameState(GameState.PLAYING)
     setShowHelp(false)
 
     // play background music if not playing
-    if (audioInstances.background.currentTime === 0) {
-      audioInstances.background.play().catch(() => {})
-      audioInstances.background.loop = true
-    }
+    // if (audioInstances.background.currentTime === 0) {
+    //   audioInstances.background.play().catch(() => {})
+    //   audioInstances.background.loop = true
+    // }
   }, [setGameState])
 
   return (
